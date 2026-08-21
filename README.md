@@ -34,12 +34,21 @@ On PowerShell:
     New-Item -ItemType Directory -Force out
     javac -encoding UTF-8 -d out src\*.java
     java -cp out CorrectnessTest
-    java -cp out Benchmark 1024 20 512 32
+    java -cp out Benchmark 1024 20 512 32 5
 
 Benchmark arguments are record count, number of queries, LWE dimension, and
-value length in bytes. Output is CSV-shaped metric,value data that includes
+value length in bytes, followed by the number of unmeasured warm-up queries.
+Output is CSV-shaped metric,value data that includes
 communication, state sizes, timing, observed failures, and conservative
 analytical failure bounds.
+
+For the repeated scaling experiment and publication figures, run:
+
+    python scripts/run_scaling_benchmark.py --java-home <JDK directory>
+    python scripts/plot_scaling_results.py results/benchmark-scaling-summary.csv
+
+The scaling script performs three independent repetitions per database size
+and reports medians while retaining every raw run.
 
 ## Scope
 
