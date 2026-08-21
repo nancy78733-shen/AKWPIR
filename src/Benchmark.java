@@ -10,7 +10,14 @@ public final class Benchmark {
         int queryCount = args.length > 1 ? Integer.parseInt(args[1]) : 20;
         int lweDimension = args.length > 2 ? Integer.parseInt(args[2]) : 512;
         int valueBytes = args.length > 3 ? Integer.parseInt(args[3]) : 32;
+        int warmupQueries = args.length > 4 ? Integer.parseInt(args[4]) : 5;
         Parameters parameters = new Parameters(lweDimension, 3.2, valueBytes);
+
+        // Exclude one-time JVM, provider, and SecureRandom initialization from
+        // the measured preprocessing interval.
+        DataOwner.preprocess(
+                DataOwner.deterministicDataset(16, parameters.valueBytes),
+                parameters);
 
         Map<String, byte[]> dataset =
                 DataOwner.deterministicDataset(recordCount, parameters.valueBytes);
@@ -18,6 +25,17 @@ public final class Benchmark {
         DataOwner.Setup setup = DataOwner.preprocess(dataset, parameters);
         long preprocessNanos = System.nanoTime() - preprocessStart;
         Client client = new Client(setup.clientState);
+
+        for (int i = 0; i < warmupQueries; i++) {
+            String keyword = String.format("keyword-%08d", i % recordCount);
+            Client.Query query = client.query(keyword);
+            Server.Response response = setup.server.answer(query);
+            Client.Result result = client.reconstruct(query, response);
+            if (result.status != Client.Status.FOUND
+                    || !Arrays.equals(dataset.get(keyword), result.value)) {
+                throw new IllegalStateException("warm-up query failed");
+            }
+        }
 
         long queryNanos = 0;
         long answerNanos = 0;
@@ -61,6 +79,7 @@ public final class Benchmark {
         System.out.println("metric,value");
         emit("records", recordCount);
         emit("queries", queryCount);
+        emit("warmup_queries", warmupQueries);
         emit("lwe_dimension", lweDimension);
         emit("value_bytes", valueBytes);
         emit("bucket_count", setup.clientState.bucketCount);
@@ -88,3 +107,4 @@ public final class Benchmark {
         System.out.println(metric + "," + value);
     }
 }
+
