@@ -11,7 +11,8 @@ public final class Benchmark {
         int lweDimension = args.length > 2 ? Integer.parseInt(args[2]) : 512;
         int valueBytes = args.length > 3 ? Integer.parseInt(args[3]) : 32;
         int warmupQueries = args.length > 4 ? Integer.parseInt(args[4]) : 5;
-        Parameters parameters = new Parameters(lweDimension, 3.2, valueBytes);
+        double errorSigma = args.length > 5 ? Double.parseDouble(args[5]) : 3.2;
+        Parameters parameters = new Parameters(lweDimension, errorSigma, valueBytes);
 
         // Exclude one-time JVM, provider, and SecureRandom initialization from
         // the measured preprocessing interval.
@@ -81,6 +82,7 @@ public final class Benchmark {
         emit("queries", queryCount);
         emit("warmup_queries", warmupQueries);
         emit("lwe_dimension", lweDimension);
+        emit("error_sigma", errorSigma);
         emit("value_bytes", valueBytes);
         emit("bucket_count", setup.clientState.bucketCount);
         emit("bucket_capacity", setup.clientState.bucketCapacity);
@@ -107,4 +109,3 @@ public final class Benchmark {
         System.out.println(metric + "," + value);
     }
 }
-
