@@ -33,6 +33,13 @@ final class Crypto {
         return sha256(domainSeparated);
     }
 
+    static byte[] paddingLeafHash(int index) {
+        ByteBuffer encoded = ByteBuffer.allocate(1 + Integer.BYTES);
+        encoded.put((byte) 2);
+        encoded.putInt(index);
+        return sha256(encoded.array());
+    }
+
     static byte[] nodeHash(byte[] left, byte[] right) {
         byte[] input = new byte[1 + left.length + right.length];
         input[0] = 1;

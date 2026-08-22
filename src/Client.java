@@ -9,10 +9,12 @@ public final class Client {
 
     public static final class Query {
         final int[] coefficients;
+        final long epoch;
         private final QueryState state;
 
-        private Query(int[] coefficients, QueryState state) {
+        private Query(int[] coefficients, long epoch, QueryState state) {
             this.coefficients = coefficients;
+            this.epoch = epoch;
             this.state = state;
         }
 
@@ -77,11 +79,12 @@ public final class Client {
             coefficients[column] = accumulator;
         }
         QueryState queryState = new QueryState(secret, bucket, Crypto.keywordTag(keyword));
-        return new Query(coefficients, queryState);
+        return new Query(coefficients, state.epoch, queryState);
     }
 
     public Result reconstruct(Query query, Server.Response response) {
-        if (response.data.length != state.dataColumns
+        if (query.epoch != state.epoch || response.epoch != state.epoch
+                || response.data.length != state.dataColumns
                 || response.proof.length != state.proofColumns) {
             return Result.rejected();
         }
@@ -111,6 +114,32 @@ public final class Client {
             }
         }
         return Result.notFound();
+    }
+
+    public void applyUpdate(DataOwner.ClientUpdate update) {
+        if (update.fromEpoch != state.epoch || update.toEpoch != state.epoch + 1) {
+            throw new IllegalStateException("client update is stale or out of order");
+        }
+        if (update.dataHintDelta.length != state.dataHint.length
+                || update.proofHintDelta.length != state.proofHint.length) {
+            throw new IllegalArgumentException("client update dimension mismatch");
+        }
+        for (int row = 0; row < state.dataHint.length; row++) {
+            for (int column = 0; column < update.dataHintDelta[row].length; column++) {
+                state.dataHint[row][update.columnOffset + column]
+                        += update.dataHintDelta[row][column];
+            }
+            for (int patch = 0; patch < update.proofLevels.length; patch++) {
+                int sourceOffset = patch * Parameters.TAG_BYTES;
+                int destinationOffset = update.proofLevels[patch] * Parameters.TAG_BYTES;
+                for (int offset = 0; offset < Parameters.TAG_BYTES; offset++) {
+                    state.proofHint[row][destinationOffset + offset]
+                            += update.proofHintDelta[row][sourceOffset + offset];
+                }
+            }
+        }
+        state.merkleRoot = update.newRoot.clone();
+        state.epoch = update.toEpoch;
     }
 
     private static byte[] decode(int[] answer, int[][] hint, int[] secret) {
