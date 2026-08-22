@@ -18,6 +18,12 @@ The implementation makes the following choices explicit:
 - the client secret is uniform in Z_q and query errors are sampled from a
   rounded Gaussian;
 - FOUND, NOT_FOUND, and REJECTED are distinct outcomes;
+- queries and responses are bound to a monotonically installed epoch;
+- authenticated fixed-shape transitions support value modification, deletion,
+  and insertion into a reserved dummy slot while updating only affected server
+  columns, Merkle-path ranges, client-hint columns, and the epoch root;
+- bucket overflow, shape changes, and mapping-key rotation explicitly require
+  full preprocessing;
 - online server work is reported as linear in the encoded database size.
 
 This code is intended for reproducibility and protocol auditing. The default
@@ -53,6 +59,8 @@ Reviewer-requested payload and registration experiments are reproduced with:
     python scripts/run_payload_benchmark.py --java-home <JDK directory> --dimension 256
     python scripts/run_registration_sizing.py --java-home <JDK directory>
     python scripts/plot_reviewer_experiments.py results/benchmark-payload-summary.csv results/registration-sizing-summary.csv
+    python scripts/run_update_benchmark.py --java-home <JDK directory>
+    python scripts/plot_update_benchmark.py results/update-benchmark-summary.csv
 
 The scaling script performs three independent repetitions per database size
 and reports medians while retaining every raw run. The payload experiment tests
@@ -61,12 +69,19 @@ uses three deterministic mapping keys at database sizes from 2^8 through 2^20;
 it measures realized bucket occupancy and computes the exact serialized state
 size without allocating the dense hint matrices. Reported link times are
 idealized wire-time projections and exclude protocol and congestion overhead.
+The update experiment uses the manuscript dimension of 2048, one reserved
+dummy slot per bucket, three deterministic seeds, and database sizes through
+2^20. It times real delta generation and application kernels; initial matrix
+allocation, authentication framing, network transport, and rebuild fallback
+are excluded from the timed region.
 
 ## Scope
 
-The reference implementation assumes a static database epoch and a trusted
-offline delivery of the client state and Merkle root. Dynamic updates,
-multi-client registration, and a malicious data owner are outside the current
-protocol model. The server sees no client message after its response; therefore
-the selective-failure discussion in the manuscript is limited to the one-shot
-server transcript and does not cover application-level retries.
+The query protocol operates on an immutable authenticated snapshot. A trusted
+data owner may advance it with authenticated, strictly ordered fixed-shape
+tokens. This is bounded update support, not fully dynamic PIR: concurrent
+snapshots, hidden update contents, bucket overflow, parameter changes, and key
+rotation require a separate mechanism or full preprocessing. Multi-client
+registration and a malicious data owner remain outside the model. The server
+sees no client message after its response; therefore selective-failure privacy
+is limited to the one-shot transcript and does not cover application retries.
