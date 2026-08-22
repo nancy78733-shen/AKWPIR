@@ -6,7 +6,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Offline preprocessing and authenticated fixed-shape epoch transitions. */
+/**
+ * Offline preprocessing and fixed-shape epoch transitions under an
+ * authenticated-channel assumption.
+ */
 public final class DataOwner {
     public static final class ClientState {
         final Parameters parameters;

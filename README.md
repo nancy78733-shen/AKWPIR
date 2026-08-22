@@ -19,7 +19,7 @@ The implementation makes the following choices explicit:
   rounded Gaussian;
 - FOUND, NOT_FOUND, and REJECTED are distinct outcomes;
 - queries and responses are bound to a monotonically installed epoch;
-- authenticated fixed-shape transitions support value modification, deletion,
+- fixed-shape transitions under an authenticated-channel assumption support value modification, deletion,
   and insertion into a reserved dummy slot while updating only affected server
   columns, Merkle-path ranges, client-hint columns, and the epoch root;
 - bucket overflow, shape changes, and mapping-key rotation explicitly require
@@ -66,8 +66,9 @@ The scaling script performs three independent repetitions per database size
 and reports medians while retaining every raw run. The payload experiment tests
 32-byte through 4-KiB values at sigma values 3.2 and 6.4. Registration sizing
 uses three deterministic mapping keys at database sizes from 2^8 through 2^20;
-it measures realized bucket occupancy and computes the exact serialized state
-size without allocating the dense hint matrices. Reported link times are
+it measures realized bucket occupancy and computes the reference-layout
+coefficient/state payload size without allocating the dense hint matrices.
+Reported link times are
 idealized wire-time projections and exclude protocol and congestion overhead.
 The update experiment uses the manuscript dimension of 2048, one reserved
 dummy slot per bucket, three deterministic seeds, and database sizes through
@@ -78,8 +79,10 @@ are excluded from the timed region.
 ## Scope
 
 The query protocol operates on an immutable authenticated snapshot. A trusted
-data owner may advance it with authenticated, strictly ordered fixed-shape
-tokens. This is bounded update support, not fully dynamic PIR: concurrent
+data owner may advance it with strictly ordered fixed-shape tokens delivered
+over authenticated channels. The implementation checks epochs and application
+order, but does not add a MAC, signature, or authenticated transport framing.
+This is bounded update support, not fully dynamic PIR: concurrent
 snapshots, hidden update contents, bucket overflow, parameter changes, and key
 rotation require a separate mechanism or full preprocessing. Multi-client
 registration and a malicious data owner remain outside the model. The server
