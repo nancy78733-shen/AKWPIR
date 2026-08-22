@@ -74,8 +74,11 @@ and reports medians while retaining every raw run. The payload experiment tests
 uses three deterministic mapping keys at database sizes from 2^8 through 2^20;
 it measures realized bucket occupancy and computes the reference-layout
 coefficient/state payload size without allocating the dense hint matrices.
-Reported link times are
-idealized wire-time projections and exclude protocol and congestion overhead.
+This protocol-level byte count is the amount each client must store and receive.
+End-to-end network latency is not treated as a protocol metric because it depends
+on link rate, RTT, transport framing, congestion, buffering, and concurrent
+registrations. Reported 100-Mbit/s and 1-Gbit/s conversions are illustrative
+line-rate lower bounds rather than measured transfer times.
 The update experiment uses the manuscript dimension of 2048, one reserved
 dummy slot per bucket, three deterministic seeds, and database sizes through
 2^20. It times real delta generation and application kernels; initial matrix
@@ -94,3 +97,4 @@ rotation require a separate mechanism or full preprocessing. Multi-client
 registration and a malicious data owner remain outside the model. The server
 sees no client message after its response; therefore selective-failure privacy
 is limited to the one-shot transcript and does not cover application retries.
+
