@@ -22,7 +22,8 @@ public final class Server {
         }
 
         public long serializedSizeBytes() {
-            return (long) (data.length + proof.length) * Integer.BYTES;
+            return (long) (data.length + proof.length) * Integer.BYTES
+                    + Long.BYTES;
         }
     }
 

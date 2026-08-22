@@ -1,0 +1,39 @@
+{
+  "baseline_commits": {
+    "Authenticated PIR": "7a7f2041bc1e0907ef089f8e8e55252ef7f18e0f",
+    "VeriSimplePIR": "3643bb7cbaae02da98a195c4d004d4d083e3ab88"
+  },
+  "clang": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+  "cpu": "11th Gen Intel(R) Core(TM) i7-1160G7 @ 1.20GHz",
+  "git": "git version 2.43.0",
+  "go": "go version go1.22.2 linux/amd64",
+  "interpretation": {
+    "akwpir_security": "prototype timing parameters; not security-normalized",
+    "apir_normalization": "one record equals 8*value_bytes measured bit-PIR operations",
+    "comparison": "PIR-core retrieval; functionality differs"
+  },
+  "java": "openjdk version \"21.0.11\" 2026-04-21",
+  "javac": "javac 21.0.11",
+  "memory": "7988864 kB",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "workload": {
+    "akwpir_dimension": 256,
+    "akwpir_queries": 50,
+    "akwpir_warmups": 100,
+    "apir_record_queries": 1,
+    "apir_warmups": 1,
+    "bootstrap": false,
+    "cpp_queries": 20,
+    "cpp_warmups": 10,
+    "output_dir": "results",
+    "repetitions": 3,
+    "sizes": [
+      1024,
+      4096,
+      16384
+    ],
+    "smoke": false,
+    "value_bytes": 32
+  }
+}

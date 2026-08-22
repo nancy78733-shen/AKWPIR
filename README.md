@@ -62,6 +62,12 @@ Reviewer-requested payload and registration experiments are reproduced with:
     python scripts/run_update_benchmark.py --java-home <JDK directory>
     python scripts/plot_update_benchmark.py results/update-benchmark-summary.csv
 
+The representative native VPIR comparison (AKWPIR, SimplePIR,
+VeriSimplePIR, and Authenticated PIR LWE128) is documented in
+`benchmarks/vpir/README.md`. It pins upstream commits, executes record-level
+payload normalization with real native queries, retains raw runs, and labels
+the comparison as implementation-level rather than security-normalized.
+
 The scaling script performs three independent repetitions per database size
 and reports medians while retaining every raw run. The payload experiment tests
 32-byte through 4-KiB values at sigma values 3.2 and 6.4. Registration sizing

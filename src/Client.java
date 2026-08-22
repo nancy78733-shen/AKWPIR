@@ -19,7 +19,7 @@ public final class Client {
         }
 
         public long serializedSizeBytes() {
-            return (long) coefficients.length * Integer.BYTES;
+            return (long) coefficients.length * Integer.BYTES + Long.BYTES;
         }
     }
 

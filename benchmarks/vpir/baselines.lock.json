@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "baselines": [
+    {
+      "name": "VeriSimplePIR",
+      "repository": "https://github.com/leodec/VeriSimplePIR.git",
+      "commit": "3643bb7cbaae02da98a195c4d004d4d083e3ab88",
+      "variants": ["SimplePIR", "VeriSimplePIR"]
+    },
+    {
+      "name": "Authenticated PIR",
+      "repository": "https://github.com/dedis/apir-code.git",
+      "commit": "7a7f2041bc1e0907ef089f8e8e55252ef7f18e0f",
+      "variants": ["single-server LWE128"]
+    }
+  ]
+}
