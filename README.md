@@ -34,10 +34,11 @@ On PowerShell:
     New-Item -ItemType Directory -Force out
     javac -encoding UTF-8 -d out src\*.java
     java -cp out CorrectnessTest
-    java -cp out Benchmark 1024 20 512 32 5
+    java -cp out Benchmark 1024 20 512 32 5 3.2
 
 Benchmark arguments are record count, number of queries, LWE dimension, and
-value length in bytes, followed by the number of unmeasured warm-up queries.
+value length in bytes, followed by the number of unmeasured warm-up queries and
+the error standard deviation.
 Output is CSV-shaped metric,value data that includes
 communication, state sizes, timing, observed failures, and conservative
 analytical failure bounds.
@@ -47,8 +48,19 @@ For the repeated scaling experiment and publication figures, run:
     python scripts/run_scaling_benchmark.py --java-home <JDK directory>
     python scripts/plot_scaling_results.py results/benchmark-scaling-summary.csv
 
+Reviewer-requested payload and registration experiments are reproduced with:
+
+    python scripts/run_payload_benchmark.py --java-home <JDK directory> --dimension 256
+    python scripts/run_registration_sizing.py --java-home <JDK directory>
+    python scripts/plot_reviewer_experiments.py results/benchmark-payload-summary.csv results/registration-sizing-summary.csv
+
 The scaling script performs three independent repetitions per database size
-and reports medians while retaining every raw run.
+and reports medians while retaining every raw run. The payload experiment tests
+32-byte through 4-KiB values at sigma values 3.2 and 6.4. Registration sizing
+uses three deterministic mapping keys at database sizes from 2^8 through 2^20;
+it measures realized bucket occupancy and computes the exact serialized state
+size without allocating the dense hint matrices. Reported link times are
+idealized wire-time projections and exclude protocol and congestion overhead.
 
 ## Scope
 
@@ -58,4 +70,3 @@ multi-client registration, and a malicious data owner are outside the current
 protocol model. The server sees no client message after its response; therefore
 the selective-failure discussion in the manuscript is limited to the one-shot
 server transcript and does not cover application-level retries.
-
